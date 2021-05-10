@@ -8,6 +8,18 @@
 
 <div id="vue-target" v-cloak>
   <section class="section">
+    <div class="container">
+      <div class="columns">
+        <div v-for="img in images" class="column">
+          <div class="box">
+            <div><img v-bind:src="img.image_url"></div>
+            <div>
+              <!-- This is the code for the star rating -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
   </section>
 </div>

@@ -9,7 +9,7 @@ let init = (app) => {
 
     // This is the Vue data.
     app.data = {
-        // Complete as you see fit.
+        images: [],
     };
 
     app.enumerate = (a) => {
@@ -34,8 +34,14 @@ let init = (app) => {
 
     // And this initializes it.
     app.init = () => {
-        // Put here any initialization code.
-        // Typically this is a server GET call to load the data.
+        // First we get the images.
+        axios.get(get_images_url)
+            .then((result) => {
+                // We set them
+                let images = result.data.images;
+                app.enumerate(images);
+                app.vue.images = images;
+            })
     };
 
     // Call to the initializer.
