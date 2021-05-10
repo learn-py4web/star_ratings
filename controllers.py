@@ -31,10 +31,35 @@ from .common import db, session, T, cache, auth, logger, authenticated, unauthen
 from py4web.utils.url_signer import URLSigner
 from .models import get_user_email
 
+IMAGES = ["rubber-duck.jpg", "rabbit.jpg", "teddy_bear.jpg",
+    "colander.jpg", "coffeecup.jpg", "cowboy_hat.jpg"]
+
 url_signer = URLSigner(session)
 
+# This controller is used to initialize the database.
+@action('setup')
+@action.uses(db)
+def setup():
+    db(db.images).delete()
+    db(db.stars).delete()
+    for img in IMAGES:
+        db.images.insert(image_url=URL('static', 'images/' + img))
+    return "ok"
+
+# The auth.user below forces login.
 @action('index')
-@action.uses(db, auth, 'index.html')
+@action.uses('index.html', url_signer, auth.user)
 def index():
-    print("User:", get_user_email())
-    return dict()
+    return dict(
+        # This is an example of a signed URL for the callback.
+        # See the index.html template for how this is passed to the javascript.
+        get_images_url = URL('get_images', signer=url_signer),
+        get_rating_url = URL('get_rating', signer=url_signer),
+        set_rating_url = URL('set_rating', signer=url_signer),
+    )
+
+@action('get_images')
+@action.uses(url_signer.verify(), db)
+def get_images():
+    """Returns the list of images."""
+    return dict(images=db(db.images).select().as_list())
