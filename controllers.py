@@ -69,9 +69,22 @@ def get_images():
 def get_rating():
     """Returns the rating for a user and an image."""
     image_id = request.params.get('image_id')
-    user_id = get_user()
-    assert image_id is not None
-    rating_entry = db((db.stars.image == image_id) &
-                      (db.stars.rater == user_id)).select().first()
-    rating = rating_entry.rating if rating_entry is not None else 0
+    row = db((db.stars.image == image_id) &
+             (db.stars.rater == get_user())).select().first()
+    rating = row.rating if row is not None else 0
     return dict(rating=rating)
+
+@action('set_rating', method='POST')
+@action.uses(url_signer.verify(), db, auth.user)
+def set_rating():
+    """Sets the rating for an image."""
+    image_id = request.json.get('image_id')
+    rating = request.json.get('rating')
+    assert image_id is not None and rating is not None
+    db.stars.update_or_insert(
+        ((db.stars.image == image_id) & (db.stars.rater == get_user())),
+        image=image_id,
+        rater=get_user(),
+        rating=rating
+    )
+    return "ok" # Just to have some confirmation in the Network tab.

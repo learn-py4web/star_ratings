@@ -70,6 +70,17 @@ let init = (app) => {
                 app.complete(images);
                 app.vue.images = images;
             })
+            .then(() => {
+                // Then we get the star ratings for each image.
+                // These depend on the user.
+                for (let img of app.vue.images) {
+                    axios.get(get_rating_url, {params: {"image_id": img.id}})
+                        .then((result) => {
+                            img.rating = result.data.rating;
+                            img.num_stars_display = result.data.rating;
+                        });
+                }
+            });
     };
 
     // Call to the initializer.
