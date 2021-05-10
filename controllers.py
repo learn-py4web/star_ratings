@@ -29,7 +29,7 @@ from py4web import action, request, abort, redirect, URL
 from yatl.helpers import A
 from .common import db, session, T, cache, auth, logger, authenticated, unauthenticated, flash
 from py4web.utils.url_signer import URLSigner
-from .models import get_user_email
+from .models import get_user_email, get_user
 
 IMAGES = ["rubber-duck.jpg", "rabbit.jpg", "teddy_bear.jpg",
     "colander.jpg", "coffeecup.jpg", "cowboy_hat.jpg"]
@@ -63,3 +63,15 @@ def index():
 def get_images():
     """Returns the list of images."""
     return dict(images=db(db.images).select().as_list())
+
+@action('get_rating')
+@action.uses(url_signer.verify(), db, auth.user)
+def get_rating():
+    """Returns the rating for a user and an image."""
+    image_id = request.params.get('image_id')
+    user_id = get_user()
+    assert image_id is not None
+    rating_entry = db((db.stars.image == image_id) &
+                      (db.stars.rater == user_id)).select().first()
+    rating = rating_entry.rating if rating_entry is not None else 0
+    return dict(rating=rating)

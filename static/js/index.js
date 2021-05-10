@@ -19,10 +19,37 @@ let init = (app) => {
         return a;
     };
 
+    app.complete = (images) => {
+        // Initializes useful fields of images.
+        images.map((img) => {
+            img.num_stars = 0;
+            img.num_stars_display = 0;
+        })
+    };
+
+
+    app.set_stars = (img_idx, num_stars) => {
+        let img = app.vue.images[img_idx];
+        img.rating = num_stars;
+        // Sets the stars on the server.
+        axios.post(set_rating_url, {image_id: img.id, rating: num_stars});
+    };
+
+    app.stars_out = (img_idx) => {
+        let img = app.vue.images[img_idx];
+        img.num_stars_display = img.rating;
+    };
+
+    app.stars_over = (img_idx, num_stars) => {
+        let img = app.vue.images[img_idx];
+        img.num_stars_display = num_stars;
+    };
 
     // This contains all the methods.
     app.methods = {
-        // Complete as you see fit.
+        set_stars: app.set_stars,
+        stars_out: app.stars_out,
+        stars_over: app.stars_over,
     };
 
     // This creates the Vue instance.
@@ -40,6 +67,7 @@ let init = (app) => {
                 // We set them
                 let images = result.data.images;
                 app.enumerate(images);
+                app.complete(images);
                 app.vue.images = images;
             })
     };
