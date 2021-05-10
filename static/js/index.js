@@ -22,7 +22,7 @@ let init = (app) => {
     app.complete = (images) => {
         // Initializes useful fields of images.
         images.map((img) => {
-            img.num_stars = 0;
+            img.rating = 0;
             img.num_stars_display = 0;
         })
     };
