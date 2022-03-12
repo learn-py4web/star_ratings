@@ -48,7 +48,7 @@ def setup():
 
 # The auth.user below forces login.
 @action('index')
-@action.uses(url_signer, auth.user, 'index.html')
+@action.uses('index.html', url_signer, auth.user)
 def index():
     return dict(
         # This is an example of a signed URL for the callback.
