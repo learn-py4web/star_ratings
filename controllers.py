@@ -37,19 +37,25 @@ IMAGES = ["rubber-duck.jpg", "rabbit.jpg", "teddy_bear.jpg",
 url_signer = URLSigner(session)
 
 # This controller is used to initialize the database.
-@action('setup')
-@action.uses(db)
-def setup():
+def do_setup():
     db(db.images).delete()
     db(db.stars).delete()
     for img in IMAGES:
         db.images.insert(image_url=URL('static', 'images/' + img))
+
+@action('setup')
+@action.uses(db)
+def setup():
+    do_setup()
     return "ok"
 
 # The auth.user below forces login.
 @action('index')
 @action.uses('index.html', url_signer, auth.user)
 def index():
+    # If the database is empty, sets it up.
+    if db(db.images).count() == 0:
+        do_setup()
     return dict(
         # This is an example of a signed URL for the callback.
         # See the index.html template for how this is passed to the javascript.
